@@ -2145,26 +2145,26 @@ static GtkWidget *create_menu(Mainwindow *w)
      return gtk_item_factory_get_widget(item_factory,"<main>");
 }
 
-static void loopmode_toggle(GtkToggleButton *button, gboolean *user_data)
+static void loopmode_toggle(GtkToggleToolButton *button, gboolean *user_data)
 {
-     *user_data = gtk_toggle_button_get_active(button);
+     *user_data = gtk_toggle_tool_button_get_active(button);
      inifile_set_gboolean("loopMode", *user_data);
 }
 
-static void followmode_toggle(GtkToggleButton *button, gboolean *user_data)
+static void followmode_toggle(GtkToggleToolButton *button, gboolean *user_data)
 {
      Mainwindow *w = MAINWINDOW(user_data);
-     w->followmode = gtk_toggle_button_get_active(button);
+     w->followmode = gtk_toggle_tool_button_get_active(button);
      if (w->doc != NULL)
 	  document_set_followmode(w->doc, w->followmode);
      inifile_set_gboolean("followMode", w->followmode);
 }
 
-static void bouncemode_toggle(GtkToggleButton *button, gboolean *user_data)
+static void bouncemode_toggle(GtkToggleToolButton *button, gboolean *user_data)
 {
      Mainwindow *w = MAINWINDOW(user_data);
-     w->bouncemode = gtk_toggle_button_get_active(button);
-     inifile_set_gboolean("bounceMode", gtk_toggle_button_get_active(button));
+     w->bouncemode = gtk_toggle_tool_button_get_active(button);
+     inifile_set_gboolean("bounceMode", w->bouncemode);
 }
 
 static GtkWidget *create_toolbar(Mainwindow *w)
@@ -2302,33 +2302,36 @@ static GtkWidget *create_toolbar(Mainwindow *w)
 
      pb = gdk_pixbuf_new_from_xpm_data (button_loop_xpm);
      b = gtk_image_new_from_pixbuf(pb);
-     i = gtk_tool_button_new(b,NULL);
+     i = gtk_toggle_tool_button_new();
+     gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(i),b);
      gtk_widget_set_tooltip_text(GTK_WIDGET(i),_("Loop mode (play over and over)"));
-     g_signal_connect(i,"clicked",G_CALLBACK(loopmode_toggle),&(w->loopmode));
+     g_signal_connect(i,"toggled",G_CALLBACK(loopmode_toggle),&(w->loopmode));
      gtk_toolbar_insert(GTK_TOOLBAR(t),i,-1);
      if ( inifile_get_gboolean("loopMode",FALSE) ) 
-	  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(i), TRUE);
+	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(i), TRUE);
 
      pb = gdk_pixbuf_new_from_xpm_data (button_follow_xpm);
      b = gtk_image_new_from_pixbuf(pb);
-     i = gtk_tool_button_new(b,NULL);
+     i = gtk_toggle_tool_button_new();
+     gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(i),b);
      gtk_widget_set_tooltip_text(GTK_WIDGET(i),_("Keep view and playback together"));
-     g_signal_connect(i,"clicked",G_CALLBACK(followmode_toggle),w);
+     g_signal_connect(i,"toggled",G_CALLBACK(followmode_toggle),w);
      gtk_toolbar_insert(GTK_TOOLBAR(t),i,-1);
      if ( inifile_get_gboolean("followMode",FALSE) ) {
-	  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(i), TRUE);
+	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(i), TRUE);
 	  w->followmode = TRUE;
      } else
 	  w->followmode = FALSE;
 
      pb = gdk_pixbuf_new_from_xpm_data (button_bounce_xpm);
      b = gtk_image_new_from_pixbuf(pb);
-     i = gtk_tool_button_new(b,NULL);
+     i = gtk_toggle_tool_button_new();
+     gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(i),b);
      gtk_widget_set_tooltip_text(GTK_WIDGET(i),_("Auto return to playback start"));
-     g_signal_connect(i,"clicked",G_CALLBACK(bouncemode_toggle),w);
+     g_signal_connect(i,"toggled",G_CALLBACK(bouncemode_toggle),w);
      gtk_toolbar_insert(GTK_TOOLBAR(t),i,-1);
      if ( inifile_get_gboolean("bounceMode",FALSE) ) {
-	  gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(i), TRUE);
+	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(i), TRUE);
 	  w->bouncemode = TRUE;
      }
      
