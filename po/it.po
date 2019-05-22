@@ -1399,8 +1399,8 @@ msgstr "Se viene installato Mplayer, mhWaveEdit apre tutti i formati supportati 
 
 #: src/help.c:195
 #, no-c-format
-msgid "mhWaveEdit creates a directory ~/.mhwaveedit where it stores configuration information. \n"
-msgstr "mhWaveEdit crea una cartella, ~/.mhwaveedit dove salva le informazioni di configurazione.\n"
+msgid "mhWaveEdit creates a directory ~/.config where it stores configuration information. \n"
+msgstr "mhWaveEdit crea una cartella, ~/.config dove salva le informazioni di configurazione.\n"
 
 #: src/help.c:197
 #, no-c-format
@@ -1409,13 +1409,13 @@ msgstr "Il file di configurazione si chiama config. Può essere modificato a man
 
 #: src/help.c:199
 #, no-c-format
-msgid "Each mhwaveedit process creates a session file in the .mhwaveedit directory called mhwaveedit-session-<pid>-<session>-<state>, where <session> is the session ID number and <state> is a character code showing the state of the session ('r' for running sessions). \n"
-msgstr "Ogni processo mhWaveEdit crea un file sessione nella cartella .mhwaveedit, chiamato mhwaveedit-session-<pid>-<session>-<stato>, dove <session> è il numero ID della sessione e <stato> è un carattere che mostra lo stato della sessione ('r' per le sessioni in corso).\n"
+msgid "Each mhwaveedit process creates a session file in the .cache directory called mhwaveedit-session-<pid>-<session>-<state>, where <session> is the session ID number and <state> is a character code showing the state of the session ('r' for running sessions). \n"
+msgstr "Ogni processo mhWaveEdit crea un file sessione nella cartella .cache, chiamato mhwaveedit-session-<pid>-<session>-<stato>, dove <session> è il numero ID della sessione e <stato> è un carattere che mostra lo stato della sessione ('r' per le sessioni in corso).\n"
 
 #: src/help.c:201
 #, no-c-format
-msgid "Temporary files are by default also stored in the ~/.mhwaveedit directory. Which directories to use can be set through the preferences dialog. To get the best performance, you should have one temporary directory for each local filesystem. The temporary files have names of the form \"mhwaveedit-temp-<pid>-nnnn-<session>\". Do NOT open or remove temporary files with the same pid number as a currently running mhWaveEdit.\n"
-msgstr "Anche i file temporanei sono salvati nella cartella ~/.mhwaveedit. La cartella da usare può essere indicata nel pannello delle preferenze. Per ottenere le migliori prestazioni, ci deve essere una sola cartella temporanea per ogni filesystem locale. I file temporanei hanno nomi nel formato \"mhwaveedit-temp-<pid>-nnnn-<session>\". NON aprire o cancellare questi file se hanno lo stesso numero PID di una finestra mhWaveEdit aperta.\n"
+msgid "Temporary files are by default also stored in the ~/.cache directory. Which directories to use can be set through the preferences dialog. To get the best performance, you should have one temporary directory for each local filesystem. The temporary files have names of the form \"mhwaveedit-temp-<pid>-nnnn-<session>\". Do NOT open or remove temporary files with the same pid number as a currently running mhWaveEdit.\n"
+msgstr "Anche i file temporanei sono salvati nella cartella ~/.cache. La cartella da usare può essere indicata nel pannello delle preferenze. Per ottenere le migliori prestazioni, ci deve essere una sola cartella temporanea per ogni filesystem locale. I file temporanei hanno nomi nel formato \"mhwaveedit-temp-<pid>-nnnn-<session>\". NON aprire o cancellare questi file se hanno lo stesso numero PID di una finestra mhWaveEdit aperta.\n"
 
 #: src/help.c:203
 #, no-c-format

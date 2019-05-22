@@ -1,3 +1,8 @@
+New features in version 1.4.25:
+
+  * Configuration file ~/.config/mhwaveedit.conf
+  * Temporary file in ~/.cache
+
 New features in version 1.4.24:
 
  * Add keyboard shortcut for Redo

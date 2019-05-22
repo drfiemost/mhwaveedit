@@ -55,10 +55,10 @@ void inifile_init(void)
      size_t s = 0;
      int x;
      settings = g_hash_table_new(g_str_hash,g_str_equal);
-     c = g_strjoin(NULL,get_home_directory(),"/.mhwaveedit",NULL);
+     c = g_strjoin(NULL,get_home_directory(),"/.config",NULL);
      mkdir(c,CONFDIR_PERMISSION);
      g_free(c);
-     ininame = g_strjoin(NULL,get_home_directory(),"/.mhwaveedit/config",NULL);
+     ininame = g_strjoin(NULL,get_home_directory(),"/.config/mhwaveedit.conf",NULL);
      if (!file_exists(ininame)) return;
      f = e_fopen(ininame,EFILE_READ);
      if (!f) return;

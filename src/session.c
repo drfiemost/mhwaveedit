@@ -35,6 +35,7 @@
 #include "gettext.h"
 #include "document.h"
 #include "mainloop.h"
+#include "main.h"
 
 /* Session states */
 #define SESSION_RUNNING 0   /* Currently running in another process */
@@ -81,7 +82,8 @@ void session_init(int *argc, char **argv)
      GList *list,*list2;
      gboolean b;
      /* Check for session files on the system */
-     session_dir = g_strjoin(NULL,get_home_directory(),"/.mhwaveedit",NULL);
+     session_dir = g_strjoin(NULL,get_home_directory(),"/.cache",NULL);
+     mkdir(session_dir, CONFDIR_PERMISSION);
      d = opendir(session_dir);
      if (d == NULL) {
 	  user_perror(_("Error opening session directory"));

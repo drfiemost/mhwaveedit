@@ -1,6 +1,16 @@
 
 More recent history can be found in ChangeLog.git
 
+2018-05-22  zvezdochiot  <mykaralw@yandex.ru>
+
+	* Released version 1.4.25.
+
+	* src/inifile.c (inifile_init): Transfer of a configuration
+	.mhwaveedit to .config
+
+	* src/session.c (session_init): Use ~/.cache directory for
+	sessions.
+
 2008-05-05  Magnus Hjorth  <magnus.hjorth@home.se>
 
 	* Released version 1.4.15.

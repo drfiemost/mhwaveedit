@@ -1561,9 +1561,9 @@ msgstr ""
 #: src/help.c:195
 #, no-c-format
 msgid ""
-"mhWaveEdit creates a directory ~/.mhwaveedit where it stores configuration "
+"mhWaveEdit creates a directory ~/.config where it stores configuration "
 "information. \n"
-msgstr "mhWaveEdit skapar en katalog ~/.mhwaveedit där inställningar lagras.\n"
+msgstr "mhWaveEdit skapar en katalog ~/.config där inställningar lagras.\n"
 
 #: src/help.c:197
 #, no-c-format
@@ -1578,12 +1578,12 @@ msgstr ""
 #: src/help.c:199
 #, no-c-format
 msgid ""
-"Each mhwaveedit process creates a session file in the .mhwaveedit directory "
+"Each mhwaveedit process creates a session file in the .cache directory "
 "called mhwaveedit-session-<pid>-<session>-<state>, where <session> is the "
 "session ID number and <state> is a character code showing the state of the "
 "session ('r' for running sessions). \n"
 msgstr ""
-"Varje mhWaveEdit-process skapar en sessionsfil i .mhwaveedit-katalogen. Den "
+"Varje mhWaveEdit-process skapar en sessionsfil i .cache-katalogen. Den "
 "har namn på formen mhwaveedit-session-<pid>-<session>-<tillstånd>, där "
 "<session> är ett ID-nummer och <tillstånd> är en bokstav som talar om vilket "
 "tillstånd sessionen är i ('r' betyder att den är igång).\n"
@@ -1591,14 +1591,14 @@ msgstr ""
 #: src/help.c:201
 #, no-c-format
 msgid ""
-"Temporary files are by default also stored in the ~/.mhwaveedit directory. "
+"Temporary files are by default also stored in the ~/.cache directory. "
 "Which directories to use can be set through the preferences dialog. To get "
 "the best performance, you should have one temporary directory for each local "
 "filesystem. The temporary files have names of the form \"mhwaveedit-temp-"
 "<pid>-nnnn-<session>\". Do NOT open or remove temporary files with the same "
 "pid number as a currently running mhWaveEdit.\n"
 msgstr ""
-"Temporära filer lagras också normalt i ~/.mhwaveedit-katalogen. Vilka "
+"Temporära filer lagras också normalt i ~/.cache-katalogen. Vilka "
 "kataloger som skall användas kan man välja genom Inställningar-fönstret. För "
 "att få så bra prestanda som möjligt, använd en katalog för varje lokalt "
 "filsystem. Temporära filer har namn på formen \"mhwaveedit-temp-<pid>-nnnn-"

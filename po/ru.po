@@ -1614,10 +1614,10 @@ msgstr " \n"
 #: src/help.c:195
 #, fuzzy, no-c-format
 msgid ""
-"mhWaveEdit creates a directory ~/.mhwaveedit where it stores configuration "
+"mhWaveEdit creates a directory ~/.config where it stores configuration "
 "information. \n"
 msgstr ""
-"mhWaveEdit создает каталог ~/.mhwaveedit, где он сохраняет конфигурационную "
+"mhWaveEdit создает каталог ~/.config, где он сохраняет конфигурационную "
 "информацию. \n"
 
 #: src/help.c:197
@@ -1633,12 +1633,12 @@ msgstr ""
 #: src/help.c:199
 #, fuzzy, no-c-format
 msgid ""
-"Each mhwaveedit process creates a session file in the .mhwaveedit directory "
+"Each mhwaveedit process creates a session file in the .cache directory "
 "called mhwaveedit-session-<pid>-<session>-<state>, where <session> is the "
 "session ID number and <state> is a character code showing the state of the "
 "session ('r' for running sessions). \n"
 msgstr ""
-"По умолчанию временные файлы тоже хранятся в каталоге ~/.mhwaveedit. Какие "
+"По умолчанию временные файлы тоже хранятся в каталоге ~/.cache. Какие "
 "каталоги программа будет использовать для временных фалов, можно указать в "
 "диалоге \"Настройки\". Для получения наилучшей производительности, вы должны "
 "иметь по одному каталогу временных фалов на каждой локальной файловой "
@@ -1649,7 +1649,7 @@ msgstr ""
 #: src/help.c:201
 #, fuzzy, no-c-format
 msgid ""
-"Temporary files are by default also stored in the ~/.mhwaveedit directory. "
+"Temporary files are by default also stored in the ~/.cache directory. "
 "Which directories to use can be set through the preferences dialog. To get "
 "the best performance, you should have one temporary directory for each local "
 "filesystem. The temporary files have names of the form \"mhwaveedit-temp-"
