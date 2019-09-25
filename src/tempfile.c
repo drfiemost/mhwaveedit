@@ -238,7 +238,7 @@ gchar *get_temp_directory(guint num)
 	       if (c==NULL) c=getenv("TMP");
 	       if (try_tempdir(c)) 
 		    tempdirs = g_list_append(tempdirs,g_strdup(c));
-	       c = g_strjoin("/",get_home_directory(),".mhwaveedit",NULL);
+	       c = g_strjoin("/",get_home_directory(),".cache",NULL);
 	       mkdir(c,CONFDIR_PERMISSION);
 	       if (try_tempdir(c))
 		    tempdirs = g_list_append(tempdirs,g_strdup(c));

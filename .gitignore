@@ -4,7 +4,6 @@
 *.o
 Makefile
 Makefile.in
-README
 aclocal.m4
 autom4te.cache
 config.h
@@ -15,5 +14,4 @@ configure
 POTFILES
 .deps
 stamp-h1
-help.c
 mhwaveedit

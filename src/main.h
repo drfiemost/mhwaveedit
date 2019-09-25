@@ -62,7 +62,7 @@ void gtk_widget_set_can_focus(GtkWidget *w, gboolean can_focus);
 /* Global stuff */
 #define PROGRAM_VERSION_STRING PACKAGE " " VERSION
 
-/* Permissions for creating ~/.mhwaveedit directory */
+/* Permissions for creating ~/.config directory */
 #define CONFDIR_PERMISSION 0755
 
 /* Various portability stuff */

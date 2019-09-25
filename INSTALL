@@ -32,7 +32,7 @@ some point `config.cache' contains results you don't want to keep, you
 may remove or edit it.
 
    The file `configure.ac' (or `configure.in') is used to create
-`configure' by a program called `autoconf'.  You only need
+`configure' by a program called `autoreconf -fiv'.  You only need
 `configure.ac' if you want to change it or regenerate `configure' using
 a newer version of `autoconf'.
 

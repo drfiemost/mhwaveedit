@@ -56,7 +56,7 @@
 #define INI_SETTING_TIME_DISPLAY_SCALE "timeDisplayScale"
 
 /* This function must be called before any other of these functions. It will
- * initialize the inifile system and load the settings file ~/.mhwaveedit/config
+ * initialize the inifile system and load the settings file ~/.config/mhwaveedit.conf
  * if available. 
  */
 
