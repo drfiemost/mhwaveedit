@@ -4,6 +4,6 @@ CLEANFILES = *~ core core.*
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = config.rpath
+EXTRA_DIST = config.rpath ext/ladspa.h
 
-man_MANS = mhwaveedit.1
+dist_man_MANS = mhwaveedit.1
