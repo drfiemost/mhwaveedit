@@ -1,5 +1,11 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT
+
+m4_define([mhWaveEdit_major], [1])
+m4_define([mhWaveEdit_minor], [4])
+m4_define([mhWaveEdit_micro], [25])
+m4_define([mhWaveEdit_version],[mhWaveEdit_major.mhWaveEdit_minor.mhWaveEdit_micro])
+
+AC_INIT([mhWaveEdit],[mhWaveEdit_version])
 AC_PREREQ(2.59)
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/chunk.c])
@@ -7,10 +13,10 @@ AC_CONFIG_SRCDIR([src/chunk.c])
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-MHW_VERSION=1.4.25
-
-AM_INIT_AUTOMAKE(mhWaveEdit,$MHW_VERSION)
+AM_INIT_AUTOMAKE
 AM_MAINTAINER_MODE([enable])
+
+MHW_VERSION=mhWaveEdit_version
 
 dnl Check for libintl
 AM_GNU_GETTEXT([external])
