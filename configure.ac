@@ -6,7 +6,7 @@ m4_define([mhWaveEdit_micro], [25])
 m4_define([mhWaveEdit_version],[mhWaveEdit_major.mhWaveEdit_minor.mhWaveEdit_micro])
 
 AC_INIT([mhWaveEdit],[mhWaveEdit_version])
-AC_PREREQ(2.59)
+AC_PREREQ([2.70])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/chunk.c])
 
@@ -434,7 +434,6 @@ AC_DEFINE(_LARGEFILE_SOURCE,[],[Defined to get fseeko/ftello prototypes])
 AC_CHECK_SIZEOF(off_t)
 
 dnl Checks for header files.
-AC_HEADER_STDC
 AC_CHECK_HEADERS([sys/time.h time.h sys/ioctl.h sys/types.h unistd.h fcntl.h sched.h libintl.h locale.h])
 
 dnl Ladspa
@@ -461,8 +460,7 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 AC_TYPE_PID_T
-AC_TYPE_SIGNAL
-AC_HEADER_TIME
+
 AC_HEADER_DIRENT
 AC_HEADER_SYS_WAIT
 AC_C_CONST
