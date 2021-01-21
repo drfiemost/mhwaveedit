@@ -43,15 +43,16 @@ EXTRA_DIST = button_bounce.xpm button_copy.xpm button_cursorend.xpm       \
              button_redo.xpm button_save.xpm button_stop.xpm              \
              button_undo.xpm icon.xpm hzoom.xbm speed.xbm vzoom.xbm
 
-INCLUDES = @GTK_CFLAGS@ @SDL_CFLAGS@ @SNDFILE_CFLAGS@ @JACK_CFLAGS@ \
-	   @ESOUND_CFLAGS@ @LIBSAMPLERATE_CFLAGS@ @ARTSC_CFLAGS@    \
-           @GTHREAD_CFLAGS@ @PULSE_CFLAGS@
+mhwaveedit_CPPFLAGS = @GTK_CFLAGS@ @SDL_CFLAGS@ @SNDFILE_CFLAGS@ @JACK_CFLAGS@ \
+                      @ESOUND_CFLAGS@ @LIBSAMPLERATE_CFLAGS@ @ARTSC_CFLAGS@    \
+                      @GTHREAD_CFLAGS@ @PULSE_CFLAGS@                          \
+                      -DLOCALEDIR=\"$(localedir)\"
+
 LDADD = @GTK_LIBS@ @SDL_LIBS@ @PORTAUDIO_LIBS@ @SNDFILE_LIBS@ @ALSALIB_LIBS@ \
         @JACK_LIBS@ @ESOUND_LIBS@ @LIBSAMPLERATE_LIBS@ @ARTSC_LIBS@ \
         @GTHREAD_LIBS@ @PULSE_LIBS@
 
 localedir = $(datadir)/locale
-AM_CPPFLAGS = -DLOCALEDIR=\"$(localedir)\"
 
 CLEANFILES = *~ core core.* #*#
 DISTCLEANFILES = .deps/*.P
