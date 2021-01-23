@@ -32,7 +32,7 @@ typedef struct {
      GtkDrawingArea da;
      gfloat value; /* Between 0 and 1 */
      gfloat goal;
-     GTimeVal valuetime;
+     gint64 valuetime;
 } VuMeter;
 
 typedef struct {

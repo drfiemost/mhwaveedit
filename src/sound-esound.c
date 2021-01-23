@@ -36,7 +36,7 @@ static int esound_play_fd = -1;
 static int esound_record_fd = -1;
 static Dataformat esound_play_format;
 static float esound_clear_delay;
-static GTimeVal esound_noflush_stop_time = {};
+static gint64 esound_noflush_stop_time = {};
 
 static void esound_prefs_init(void)
 {
@@ -94,19 +94,19 @@ static void esound_select_format(Dataformat *format, int *fdp,
 static gint esound_output_select_format(Dataformat *format, gboolean silent, 
 					GVoidFunc ready_func)
 {
-     GTimeVal tv,r;
+     gint64 tv,r;
      int i;
-     unsigned long j,k;
+     gint64 j,k;
 
      if (format->type == DATAFORMAT_FLOAT) return -1;
-     g_get_current_time(&tv);
-     i = timeval_subtract(&r,&tv,&esound_noflush_stop_time);
+     tv = g_get_real_time();
+     i = timeval_subtract(&r,tv,esound_noflush_stop_time);
      if (i == 0) {
-	  j = r.tv_sec * 1000000 + r.tv_usec;
+	  j = r;
 	  /* It seems we need a much shorter delay here than when jumping.
 	   * Fixing it to 0.1 seconds for now */
 	  k = 100000;
-	  if (r.tv_sec < 4 && j<k) usleep(k-j);
+	  if ((r/1000000) < 4 && j<k) usleep(k-j);
      }
      esound_select_format(format,&esound_play_fd,FALSE);
      if (esound_play_fd < 0) { 

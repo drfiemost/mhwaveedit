@@ -36,7 +36,7 @@ typedef int (*iogroup_cb)(gpointer iogroup, int fd, gushort revents, gpointer us
 
 /* Return value: 0=disable, >0=call again in X millis from current_time
  * <0=call again in X millis from nominal time */ 
-typedef gint (*timesource_cb)(gpointer timesource, GTimeVal *current_time, 
+typedef gint (*timesource_cb)(gpointer timesource, gint64 current_time, 
 			      gpointer user_data);
 /* Return value:
  * <0: May sleep
@@ -56,9 +56,9 @@ gpointer mainloop_io_group_add(int nfds, GPollFD *pfds, int wdtime_ms,
 void mainloop_io_group_enable(gpointer iogroup, gboolean enable);
 void mainloop_io_group_free(gpointer iogroup);
 
-gpointer mainloop_time_source_add(GTimeVal *tv, timesource_cb cb,
+gpointer mainloop_time_source_add(gint64 *tv, timesource_cb cb,
 				  gpointer user_data);
-void mainloop_time_source_restart(gpointer timesource, GTimeVal *new_tv);
+void mainloop_time_source_restart(gpointer timesource, gint64 new_tv);
 void mainloop_time_source_free(gpointer timesource);
 gboolean mainloop_time_source_enabled(gpointer timesource);
 

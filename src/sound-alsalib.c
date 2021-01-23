@@ -227,10 +227,10 @@ static int iogroup_ready_func(gpointer iogroup, int fd, gushort revents,
 {
      int i;
 #ifdef ALSADEBUG
-     GTimeVal tv;
-     g_get_current_time(&tv);
+     gint64 tv;
+     tv = g_get_real_time();
      printf("iogroup_ready_func: time=%3d.%06d, fd=%d, revents=%d\n",
-	    (int)tv.tv_sec,(int)tv.tv_usec,(int)fd,(int)revents);
+	    (int)(tv/1000000),(int)(tv-tv/1000000),(int)fd,(int)revents);
 #endif     
      if (alsa_data.whand!=NULL && !alsa_output_want_data()) {
 #ifdef ALSADEBUG
@@ -449,7 +449,7 @@ static guint alsa_output_play(gchar *buffer, guint bufsize)
      snd_pcm_sframes_t r,s;
      guint u;
 #ifdef ALSADEBUG
-     GTimeVal tv;
+     gint64 tv;
 #endif
      /* signal(SIGPIPE,SIG_IGN); */
      if (bufsize == 0) return 0;
@@ -457,15 +457,15 @@ static guint alsa_output_play(gchar *buffer, guint bufsize)
 	  mainloop_io_group_enable(alsa_data.iogroup,TRUE);
      alsa_data.rw_call_count ++;
 #ifdef ALSADEBUG
-     g_get_current_time(&tv);
+     tv = g_get_real_time();
      if (!alsa_data.inside_ready_func)
 	  printf("called output_play, %d bytes, re-enabled events, "
 		 "time=%3d.%06d\n",
-		 (int)bufsize,(int)tv.tv_sec,(int)tv.tv_usec);
+		 (int)bufsize,(int)(tv/1000000),(int)(tv-tv/1000000));
      else
 	  printf("called output_play from ready-func, %d bytes, "
 		 "time=%3d.%06d\n",
-		 (int)bufsize,(int)tv.tv_sec,(int)tv.tv_usec);	  
+		 (int)bufsize,(int)(tv/1000000),(int)(tv-tv/1000000));	  
 #endif
      s = bufsize/alsa_data.wfmt.samplebytes;
      while (1) {
@@ -501,9 +501,9 @@ static guint alsa_output_play(gchar *buffer, guint bufsize)
      }
      u = r*alsa_data.wfmt.samplebytes;
 #ifdef ALSADEBUG
-     g_get_current_time(&tv);
-     printf("played %d samples time=%3d.%06d\n",(int)r,(int)tv.tv_sec,
-	    (int)tv.tv_usec);
+     tv = g_get_real_time();
+     printf("played %d samples time=%3d.%06d\n",(int)r,(int)(tv/1000000),
+	    (int)(tv-tv/1000000));
 #endif
      return u;
 }

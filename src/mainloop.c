@@ -43,7 +43,7 @@ struct time_source {
      timesource_cb cb;
      gpointer user_data;
      gboolean enabled;
-     GTimeVal call_time;
+     gint64 call_time;
 };
 
 struct io_source  {
@@ -77,20 +77,20 @@ static gboolean in_sources(gpointer src, gpointer *sources, int n_sources)
      return FALSE;
 }
 
-static int timesource_scan_main(GTimeVal *current_time, gboolean do_dispatch,
+static int timesource_scan_main(gint64 current_time, gboolean do_dispatch,
 				gpointer *sources, int n_sources)
 {
      GList *l,*nl;
      struct time_source *src;
-     GTimeVal tv;
+     gint64 tv;
      int i,j;
      int timeout = -1;
      for (l=timesources; l!=NULL; l=nl) {
 	  nl = l->next;
 	  src = (struct time_source *)l->data;
 	  if (!src->enabled || !in_sources(src,sources,n_sources)) continue;
-	  i = timeval_subtract(&tv, &src->call_time, current_time);
-	  if (i || (tv.tv_sec==0 && tv.tv_usec==0)) {
+	  i = timeval_subtract(&tv, src->call_time, current_time);
+	  if (i || (tv==0)) {
 	       timeout = 0;
 
 	       if (do_dispatch) {
@@ -98,20 +98,16 @@ static int timesource_scan_main(GTimeVal *current_time, gboolean do_dispatch,
 		    j = src->cb(src, current_time, src->user_data);
 		    if (j != 0) {
 			 if (j > 0)
-			      memcpy(&src->call_time,current_time,sizeof(GTimeVal));
+			      src->call_time = current_time;
 			 else
 			      j = -j;
-			 src->call_time.tv_usec += j*1000;
-			 while (src->call_time.tv_usec >= 1000000) {
-			      src->call_time.tv_sec += 1;
-			      src->call_time.tv_usec -= 1000000;
-			 }
+			 src->call_time += j*1000;
 			 src->enabled = TRUE;
 		    }
 	       }
 
 	  } else {
-	       j = tv.tv_usec / 1000 + tv.tv_sec * 1000;
+	       j = tv / 1000;
 	       if (j <= 0) j=1;
 
 	       if (timeout < 0 || j < timeout)
@@ -121,7 +117,7 @@ static int timesource_scan_main(GTimeVal *current_time, gboolean do_dispatch,
      return timeout;
 }
 
-static int timesource_scan(GTimeVal *current_time, gboolean do_dispatch)
+static int timesource_scan(gint64 current_time, gboolean do_dispatch)
 {
      return timesource_scan_main(current_time,do_dispatch,NULL,0);
 }
@@ -149,13 +145,13 @@ static gboolean iosource_check_main(void)
      return FALSE;
 }
 
-static gboolean iosource_dispatch_main(GTimeVal *current_time)
+static gboolean iosource_dispatch_main(gint64 current_time)
 {
      GList *l;     
      struct io_source *src;
      struct io_group *grp;
      int i,j,k;
-     GTimeVal tv;
+     gint64 tv;
 
      for (l=iosources; l!=NULL; l=l->next) {
 	  src = (struct io_source *)l->data;
@@ -182,10 +178,8 @@ static gboolean iosource_dispatch_main(GTimeVal *current_time)
 	       }	       
 	       /* Restart watchdog */
 	       if (grp->wd != NULL) {
-		    tv.tv_sec = current_time->tv_sec;
-		    tv.tv_usec = current_time->tv_usec + grp->wdtime_ms*1000;
-		    if (tv.tv_usec > 1000000) { tv.tv_sec++; tv.tv_usec-=1000000; }
-		    mainloop_time_source_restart(grp->wd, &tv);
+		    tv = current_time + grp->wdtime_ms*1000;
+		    mainloop_time_source_restart(grp->wd, tv);
 	       }
 	       
 	  }
@@ -200,7 +194,7 @@ static gboolean iosource_dispatch_main(GTimeVal *current_time)
 #if GLIB_MAJOR_VERSION < 2
 
 static gboolean timesource_prepare(gpointer source_data, 
-				   GTimeVal *current_time, gint *timeout,
+				   gint64 current_time, gint *timeout,
 				   gpointer user_data)
 {
      int i;
@@ -216,7 +210,7 @@ static gboolean timesource_prepare(gpointer source_data,
      }
 }
 
-static gboolean timesource_check(gpointer source_data, GTimeVal *current_time,
+static gboolean timesource_check(gpointer source_data, gint64 current_time,
 				 gpointer user_data)
 {
      int i;
@@ -225,7 +219,7 @@ static gboolean timesource_check(gpointer source_data, GTimeVal *current_time,
 }
 
 static gboolean timesource_dispatch(gpointer source_data, 
-				    GTimeVal *dispatch_time, gpointer user_data)
+				    gint64 dispatch_time, gpointer user_data)
 {
      timesource_scan(dispatch_time,TRUE);
      return TRUE;
@@ -245,20 +239,20 @@ static void mainloop_time_source_added(struct time_source *src)
 }
 
 static gboolean iosource_prepare(gpointer source_data, 
-				 GTimeVal *current_time, gint *timeout,
+				 gint64 current_time, gint *timeout,
 				 gpointer user_data)
 {
      return FALSE;
 }
 
-static gboolean iosource_check(gpointer source_data, GTimeVal *current_time,
+static gboolean iosource_check(gpointer source_data, gint64 current_time,
 			       gpointer user_data)
 {
      return iosource_check_main();
 }
 
 static gboolean iosource_dispatch(gpointer source_data, 
-				    GTimeVal *dispatch_time, gpointer user_data)
+				    gint64 dispatch_time, gpointer user_data)
 {
      iosource_dispatch_main(dispatch_time);
      return TRUE;
@@ -296,10 +290,10 @@ static void poll_remove_main(GPollFD *pfd)
 
 static gboolean timesource_prepare(GSource *source, gint *timeout)
 {
-     GTimeVal tv;
+     gint64 tv;
      int i;
-     g_source_get_current_time(source, &tv);
-     i = timesource_scan(&tv,FALSE);
+     tv = g_source_get_time(source);
+     i = timesource_scan(tv,FALSE);
      if (i <= 0)
 	  return (i == 0);
      else {
@@ -310,19 +304,19 @@ static gboolean timesource_prepare(GSource *source, gint *timeout)
 
 static gboolean timesource_check(GSource *source)
 {
-     GTimeVal tv;
+     gint64 tv;
      int i;
-     g_source_get_current_time(source, &tv);
-     i = timesource_scan(&tv,FALSE);
+     tv = g_source_get_time(source);
+     i = timesource_scan(tv,FALSE);
      return (i == 0);
 }
 
 static gboolean timesource_dispatch(GSource *source, GSourceFunc callback,
 				    gpointer user_data)
 {
-     GTimeVal tv;
-     g_source_get_current_time(source,&tv);
-     timesource_scan(&tv,TRUE);
+     gint64 tv;
+     tv = g_source_get_time(source);
+     timesource_scan(tv,TRUE);
      return TRUE;
 }
 
@@ -359,9 +353,9 @@ static gboolean iosource_check(GSource *source)
 static gboolean iosource_dispatch(GSource *source, GSourceFunc callback, 
 				  gpointer user_data)
 {
-     GTimeVal tv;
-     g_source_get_current_time(source, &tv);
-     iosource_dispatch_main(&tv);
+     gint64 tv;
+     tv = g_source_get_time(source);
+     iosource_dispatch_main(tv);
      return TRUE;
 }
 
@@ -394,7 +388,7 @@ static void poll_remove_main(GPollFD *pfd)
 static void sources_poll(gpointer *sources, int n_sources)
 {
      int timeout,nfds,i;
-     GTimeVal tv;
+     gint64 tv;
      struct pollfd *pfds;
      GList *l;
      struct io_source *src;
@@ -402,8 +396,8 @@ static void sources_poll(gpointer *sources, int n_sources)
 
      /* puts("sources_poll"); */
 
-     g_get_current_time(&tv);
-     timeout = timesource_scan_main(&tv,TRUE,sources,n_sources);
+     tv = g_get_real_time();
+     timeout = timesource_scan_main(tv,TRUE,sources,n_sources);
      if (timeout == 0) return;
 
      pfds = g_malloc(n_sources * sizeof(struct pollfd));
@@ -545,7 +539,7 @@ void mainloop_constant_source_free(gpointer constsource)
      g_free(constsource);
 }
 
-gpointer mainloop_time_source_add(GTimeVal *tv, timesource_cb cb, 
+gpointer mainloop_time_source_add(gint64 *tv, timesource_cb cb, 
 				  gpointer user_data)
 {
      struct time_source *src;
@@ -554,7 +548,7 @@ gpointer mainloop_time_source_add(GTimeVal *tv, timesource_cb cb,
      src->cb = cb;
      src->user_data = user_data;
      if (tv != NULL) {
-	  memcpy(&src->call_time,tv,sizeof(src->call_time));
+	  src->call_time = *tv;
 	  src->enabled = TRUE;
      } else {
 	  src->enabled = FALSE;
@@ -567,10 +561,10 @@ gpointer mainloop_time_source_add(GTimeVal *tv, timesource_cb cb,
      return src;
 }
 
-void mainloop_time_source_restart(gpointer timesource, GTimeVal *new_tv)
+void mainloop_time_source_restart(gpointer timesource, gint64 new_tv)
 {
      struct time_source *src = (struct time_source *)timesource;
-     memcpy(&(src->call_time),new_tv,sizeof(src->call_time));
+     src->call_time = new_tv;
      src->enabled = TRUE;
 }
 
@@ -666,7 +660,7 @@ gpointer mainloop_io_group_add(int nfds, GPollFD *pfds, int wdtime_ms,
      return grp;
 }
 
-static gint iogroup_watchdog_cb(gpointer timesource, GTimeVal *current_time, 
+static gint iogroup_watchdog_cb(gpointer timesource, gint64 current_time, 
 				gpointer user_data)
 {
      struct io_group *grp = (struct io_group *)user_data;
@@ -686,7 +680,7 @@ void mainloop_io_group_enable(gpointer iogroup, gboolean enable)
 {
      struct io_group *grp = (struct io_group *)iogroup;
      int i;
-     GTimeVal tv;
+     gint64 tv;
 
      if (XOR(grp->enabled,enable)) {
 	  if (enable) {	       
@@ -699,14 +693,9 @@ void mainloop_io_group_enable(gpointer iogroup, gboolean enable)
      }
 
      if (enable && grp->wd != NULL) {
-	  g_get_current_time(&tv);
-	  tv.tv_sec += grp->wdtime_ms / 1000;
-	  tv.tv_usec += 1000*(grp->wdtime_ms%1000);
-	  if (tv.tv_usec >= 1000000) {
-	       tv.tv_sec++;
-	       tv.tv_usec -= 1000000;
-	  }
-	  mainloop_time_source_restart(grp->wd,&tv);
+	  tv = g_get_real_time();
+	  tv += grp->wdtime_ms * 1000;
+	  mainloop_time_source_restart(grp->wd,tv);
      }
 
      for (i=0; i<grp->nfds; i++) {     
@@ -750,7 +739,7 @@ static int defer_once_cb1(gpointer csource, gpointer user_data)
      return -1;
 }
 
-static int defer_once_cb2(gpointer tsource, GTimeVal *tm, gpointer user_data)
+static int defer_once_cb2(gpointer tsource, gint64 tm, gpointer user_data)
 {
      struct defer *d = (struct defer *)user_data;
      d->cscb(d->user_data);
@@ -762,17 +751,13 @@ static int defer_once_cb2(gpointer tsource, GTimeVal *tm, gpointer user_data)
 void mainloop_defer_once(defer_once_cb cb, gint reltime, gpointer user_data)
 {
      struct defer *d;
-     GTimeVal t;
+     gint64 t;
      d = g_malloc(sizeof(*d));
      if (reltime <= 0) 
 	  d->src = mainloop_constant_source_add(defer_once_cb1, d, TRUE);
      else {
-	  g_get_current_time(&t);
-	  t.tv_usec += reltime*1000;
-	  while (t.tv_usec >= 1000000) {
-	       t.tv_usec -= 1000000;
-	       t.tv_sec += 1;
-	  }
+	  t = g_get_real_time();
+	  t += reltime*1000;
 	  d->src = mainloop_time_source_add(&t,defer_once_cb2,d);	  
      }
 	  

@@ -41,7 +41,7 @@ static off_t total_written_frames;
 /* The value of total_written_frames when the current_* variables were reset */
 static off_t current_checkpoint;
 /* Time current checkpoint was taken. Also time of last underrun */
-static GTimeVal current_checkpoint_time;
+static gint64 current_checkpoint_time;
 
 /* The current estimation we're building up */
 /* Number of frames written for all time intervals that had "normal" usage */
@@ -62,9 +62,9 @@ static off_t last_frames_played_value;
 
 static long calc_current_period(void)
 {
-     GTimeVal tv;
-     g_get_current_time(&tv);
-     return tv.tv_sec*BIN_SEC_DIV + tv.tv_usec/BIN_USEC;
+     gint64 tv;
+     tv = g_get_real_time();
+     return tv/BIN_USEC;
 }
 
 void rateest_init(guint expected_samplerate)
@@ -73,7 +73,7 @@ void rateest_init(guint expected_samplerate)
      best_seconds = 1.0;
      total_written_frames = 0;
      current_checkpoint = 0;
-     g_get_current_time(&current_checkpoint_time);
+     current_checkpoint_time = g_get_real_time();
      current_played_frames = 0;
      current_played_seconds = 0;
      last_log_period = calc_current_period();
@@ -110,7 +110,7 @@ void rateest_log_data(guint frames)
 		    best_discarded_seconds = current_discarded_seconds;
 	       }
 	       current_checkpoint = total_written_frames;
-	       g_get_current_time(&current_checkpoint_time);
+	       current_checkpoint_time = g_get_real_time();
 	       current_played_frames = 0;
 	       current_played_seconds = 0.0;
 	       current_discarded_seconds = 0.0;
@@ -148,19 +148,19 @@ gfloat rateest_real_samplerate(void)
 
 off_t rateest_frames_played(void)
 {
-     GTimeVal tv,tv2;
+     gint64 tv,tv2;
      int i;
      gfloat f,sr;
      off_t o,lat;
      /* First, use clock time, checkpoint time and estimated sample
       * rate to calculate position. 
       * If the clock seems broken, use written frames and estimated latency. */
-     g_get_current_time(&tv);
-     i = timeval_subtract(&tv2,&tv,&current_checkpoint_time);
+     tv = g_get_real_time();
+     i = timeval_subtract(&tv2,tv,current_checkpoint_time);
      sr = rateest_real_samplerate();
      if (i >= 0) {
 	  /* printf("tv2: %ld.%6ld\n",tv2.tv_sec,tv2.tv_usec); */
-	  f = (gfloat)tv2.tv_usec * 0.000001 + (gfloat)tv2.tv_sec;
+	  f = (gfloat)tv2 * 0.000001;
 	  f *= sr;
 	  /* printf("f: %f, sr: %f\n",f,sr); */
 	  o = current_checkpoint + (off_t)f;

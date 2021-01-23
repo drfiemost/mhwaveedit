@@ -40,7 +40,7 @@ static guint chunk_view_signals[LAST_SIGNAL] = { 0 };
 static void chunk_view_update_image(ChunkView *view, guint xs, guint xe);
 static void chunk_view_redraw_samples(ChunkView *cv, off_t start, off_t end);
 static gint calc_x(ChunkView *cv, off_t sample, off_t width);
-static int chunk_view_autoscroll(gpointer timesource, GTimeVal *current_time,
+static int chunk_view_autoscroll(gpointer timesource, gint64 current_time,
 				 gpointer user_data);
 
 static void chunk_view_changed(Document *d, gpointer user_data)
@@ -513,7 +513,7 @@ static gboolean autoscroll = FALSE;
 static gpointer autoscroll_source = NULL;
 static ChunkView *autoscroll_view;
 static gfloat autoscroll_amount;
-static GTimeVal autoscroll_start;
+static gint64 autoscroll_start;
 
 static gint scroll_wheel(GtkWidget *widget, gdouble mouse_x, int direction)
 {
@@ -646,10 +646,11 @@ static gint chunk_view_motion_notify(GtkWidget *widget, GdkEventMotion *event)
 	       if (!autoscroll) {
 		    autoscroll = TRUE;
 		    autoscroll_view = cv;
-		    g_get_current_time(&autoscroll_start);		    		       }
+		    autoscroll_start = g_get_real_time();
+           }
 	       if (event->x < 0.0) autoscroll_amount = event->x;
 	       else autoscroll_amount = event->x - widget->allocation.width;
-	       chunk_view_autoscroll(NULL,&autoscroll_start,NULL);
+	       chunk_view_autoscroll(NULL,autoscroll_start,NULL);
 	  } else {
 	       autoscroll = FALSE;
 	  }
@@ -676,10 +677,10 @@ static gint chunk_view_motion_notify(GtkWidget *widget, GdkEventMotion *event)
 
 #define FLOAT(x) ((gfloat)(x))
 
-static int chunk_view_autoscroll(gpointer timesource, GTimeVal *current_time,
+static int chunk_view_autoscroll(gpointer timesource, gint64 current_time,
 				 gpointer user_data)
 {
-     GTimeVal diff,new_time;
+     gint64 diff,new_time;
      gfloat smp;
      off_t ismp;
 
@@ -688,15 +689,15 @@ static int chunk_view_autoscroll(gpointer timesource, GTimeVal *current_time,
      g_assert(timesource == NULL || timesource == autoscroll_source);
 
      if (!autoscroll) return 0;
-     timeval_subtract(&diff,current_time,&autoscroll_start);
+     timeval_subtract(&diff,current_time,autoscroll_start);
 
      /* printf("diff: %d,%d\n",diff.tv_sec,diff.tv_usec); */
-     if (diff.tv_sec > 0 || diff.tv_usec > 10000) {
+     if (diff > 10000) {
 
-	  memcpy(&autoscroll_start,current_time,sizeof(autoscroll_start));
+	  autoscroll_start = current_time;
 	  
 	  /* Convert diff -> smp */
-	  smp = 0.2 * FLOAT(diff.tv_usec/10000 + diff.tv_sec*100) * 
+	  smp = 0.2 * FLOAT(diff/10000) * 
 	       autoscroll_amount *
 	       FLOAT(autoscroll_view->doc->viewend-autoscroll_view->doc->viewstart)/
 	       FLOAT(GTK_WIDGET(autoscroll_view)->allocation.width);
@@ -726,18 +727,13 @@ static int chunk_view_autoscroll(gpointer timesource, GTimeVal *current_time,
      } 
      
      if (autoscroll) {
-	  memcpy(&new_time,current_time,sizeof(new_time));
-	  new_time.tv_usec = ((new_time.tv_usec / 25000) + 1) * 25000;
-	  if (new_time.tv_usec >= 1000000) {
-	       new_time.tv_sec += 1;
-	       new_time.tv_usec -= 1000000;
-	  }
+	  new_time = ((current_time / 25000) + 1) * 25000;
 	  if (autoscroll_source == NULL)
 	       autoscroll_source = 
 		    mainloop_time_source_add(&new_time,chunk_view_autoscroll,
 					     NULL);
 	  else
-	       mainloop_time_source_restart(autoscroll_source,&new_time);
+	       mainloop_time_source_restart(autoscroll_source,new_time);
      }
 
      return 0;

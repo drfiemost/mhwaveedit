@@ -72,7 +72,7 @@ static gpointer notify_watchdog = NULL;
 static off_t get_realpos_main(off_t frames_played);
 static void player_stop_main(gboolean read_stoppos);
 
-static gint notify_wd_cb(gpointer timesource, GTimeVal *current_time,
+static gint notify_wd_cb(gpointer timesource, gint64 current_time,
 			 gpointer user_data)
 {
      if (ch == NULL) return 0;
@@ -145,7 +145,7 @@ static gboolean player_work(void)
 {
      guint32 i;
      off_t o;
-     GTimeVal tv;
+     gint64 tv;
      if (!ch || !output_want_data()) return FALSE;
      if (player_bufpos == player_bufsize) {
 	  /* puts("Hey 1"); */
@@ -180,14 +180,13 @@ static gboolean player_work(void)
      rateest_log_data(i/ch->format.samplebytes);
      if (i>0 && notify_func!=NULL) {
 	  notify_func(player_get_real_pos(),curpos,TRUE);
-	  g_get_current_time(&tv);
-	  tv.tv_usec += 50000;
-	  if (tv.tv_usec >= 1000000) { tv.tv_sec++; tv.tv_usec-=1000000; }
+	  tv = g_get_real_time();
+	  tv += 50000;
 	  if (notify_watchdog == NULL) {
 	       notify_watchdog = mainloop_time_source_add(&tv,notify_wd_cb,
 							  NULL);
 	  } else {
-	       mainloop_time_source_restart(notify_watchdog, &tv);
+	       mainloop_time_source_restart(notify_watchdog, tv);
 	  }
      }
      return (i>0);

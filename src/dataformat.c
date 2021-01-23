@@ -1136,7 +1136,7 @@ void conversion_performance_test(void)
 			  "24U_LE", "24S_LE", "24U_BE", "24S_BE",
 			  "32U_LE", "32S_LE", "32U_BE", "32S_BE",
 			  "FP_s", "FP_d" };
-     GTimeVal start_time, end_time, test_times[FORMATS*FORMATS];
+     gint64 start_time, end_time, test_times[FORMATS*FORMATS];
      sample_t *sbuf;
      gpointer buf,buf2;
      guint i,j;
@@ -1169,11 +1169,11 @@ void conversion_performance_test(void)
 	       fputs(".",stdout);
 	       fflush(stdout);
 	       convert_array(buf,fmt,buf2,fmt+1,SBUFLEN,DITHER_NONE,NULL);
-	       g_get_current_time(&start_time);
+	       start_time = g_get_real_time();
 	       convert_array(buf,fmt,buf2,fmt+1,SBUFLEN,DITHER_NONE,NULL);
-	       g_get_current_time(&end_time);
-	       timeval_subtract(&test_times[i*FORMATS+j],&end_time,
-				&start_time);
+	       end_time = g_get_real_time();
+	       timeval_subtract(&test_times[i*FORMATS+j],end_time,
+				start_time);
 	  }
      }
 
@@ -1181,13 +1181,10 @@ void conversion_performance_test(void)
       * "round down" to get the index */
      i = 0;
      for (j=0; j<FORMATS*FORMATS; j++) {
-	  if (test_times[j].tv_sec > test_times[i].tv_sec ||
-	      (test_times[j].tv_sec == test_times[i].tv_sec &&
-	       test_times[j].tv_usec > test_times[i].tv_usec))
+	  if (test_times[j] > test_times[i])
 	       i = j;
      }    
-     f = (float)test_times[i].tv_sec + 
-	  ((float)test_times[i].tv_usec) * 0.000001;
+     f = ((float)test_times[i]) * 0.000001;
      f /= 100;
      i = 0;
      while (f < 1.0) { f*=10.0; i++; }
@@ -1201,8 +1198,7 @@ void conversion_performance_test(void)
      for (i=0; i<FORMATS; i++) {
 	  printf("\n%6s ",strings[i]);
 	  for (j=0; j<FORMATS; j++) {
-	       g = (float)test_times[i*FORMATS+j].tv_sec + 
-		    ((float)test_times[i*FORMATS+j].tv_usec) * 0.000001;
+	       g = ((float)test_times[i*FORMATS+j]) * 0.000001;
 	       g /= f;
 	       printf("%6.2f ",g);
 	       

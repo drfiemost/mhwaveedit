@@ -67,7 +67,7 @@ static int oss_samplebytes_in,oss_samplebytes_out;
 static gboolean oss_noselect = FALSE;
 static gpointer play_source;
 
-static int oss_output_flush(gpointer tsource, GTimeVal *tv, gpointer user_data);
+static int oss_output_flush(gpointer tsource, gint64 tv, gpointer user_data);
 
 static gboolean oss_init(gboolean silent)
 {
@@ -233,7 +233,7 @@ static int oss_errdlg_read(int fd, gchar *buffer, size_t size)
      return s;
 }
 
-static int oss_output_flush(gpointer ts, GTimeVal *tv, gpointer ud)
+static int oss_output_flush(gpointer ts, gint64 tv, gpointer ud)
 {
      fd_set a;
      struct timeval t = { 0 };
@@ -294,7 +294,7 @@ static gboolean oss_output_want_data(void)
 static guint oss_output_play(gchar *buffer, guint bufsize)
 {
      guint u=0;
-     GTimeVal t;
+     gint64 t;
      guint bs0 = bufsize;
      /* 24-bit samples need padding */
      if (oss_samplesize == 3) {
@@ -327,8 +327,8 @@ static guint oss_output_play(gchar *buffer, guint bufsize)
      if (ringbuf_freespace(oss_output_buffer) < oss_samplebytes_out && 
 	 !mainloop_time_source_enabled(play_source)) {
 	  puts("Starting time source");
-	  g_get_current_time(&t);
-	  mainloop_time_source_restart(play_source,&t);
+	  t = g_get_real_time();
+	  mainloop_time_source_restart(play_source,t);
      }
      g_assert(bufsize == 0 || bufsize >= oss_samplebytes_in);
      printf("oss_output_play, bs0: %d, u: %d\n",bs0,u);
@@ -350,7 +350,7 @@ static gboolean oss_output_stop(gboolean must_flush)
      if (oss_fd == -1) return TRUE;
      if (must_flush)
 	  while (ringbuf_available(oss_output_buffer)>0) {
-	       oss_output_flush(NULL,NULL,NULL);
+	       oss_output_flush(NULL,0,NULL);
 	       do_yield(TRUE);
 	  }
      else

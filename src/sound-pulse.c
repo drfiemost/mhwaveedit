@@ -196,60 +196,57 @@ static void pulse_api_io_set_destroy(pa_io_event *e,
      es->destroy_cb = cb;
 }
 
-static gint pa_api_time_new_cb(gpointer timesource, GTimeVal *current_time,
+static gint pa_api_time_new_cb(gpointer timesource, gint64 current_time,
 			       gpointer user_data)
 {
      struct pulse_api_time_event *es = 
 	  (struct pulse_api_time_event *)user_data;
-     struct timeval tv;
+     gint64 tv;
      /* puts("Time event triggered"); */
-     tv.tv_sec = current_time->tv_sec;
-     tv.tv_usec = current_time->tv_usec;
-     es->cb(pulse_api(),(pa_time_event *)es,&tv,es->userdata);
+     tv = current_time;
+     es->cb(pulse_api(),(pa_time_event *)es,tv,es->userdata);
      return 0;
 }
 
 static pa_time_event *pulse_api_time_new(pa_mainloop_api *a, 
-					 const struct timeval *tv,
+					 const gint64 tv,
 					 pa_time_event_cb_t cb,
 					 void *userdata)
 {
      struct pulse_api_time_event *es;
-     GTimeVal gtv;
+     gint64 gtv;
 
 #ifdef MLDEBUG
-     GTimeVal temp_tv;
+     gint64 temp_tv;
 
-     g_get_current_time(&temp_tv);     
-     printf("Adding time event, triggers in %d s %d us\n",
-	    tv->tv_sec-temp_tv.tv_sec, tv->tv_usec-temp_tv.tv_usec);
+     temp_tv = g_get_real_time();     
+     printf("Adding time event, triggers in %d us\n",
+	    tv-temp_tv);
 #endif
 
      es = g_malloc(sizeof(*es));
      es->cb = cb;
      es->destroy_cb = NULL;
      es->userdata = userdata;
-     gtv.tv_sec = tv->tv_sec;
-     gtv.tv_usec = tv->tv_usec;
+     gtv = tv;
      es->timesource = mainloop_time_source_add(&gtv,pa_api_time_new_cb,es);
      pulse_api_source_added(es->timesource, a);
      return (pa_time_event *)es;
 }
 
-static void pulse_api_time_restart(pa_time_event *e, const struct timeval *tv)
+static void pulse_api_time_restart(pa_time_event *e, const gint64 tv)
 {
      struct pulse_api_time_event *es = (struct pulse_api_time_event *)e;
-     GTimeVal gtv;
+     gint64 gtv;
 
      /*
-     GTimeVal temp_tv;
+     gint64 temp_tv;
      g_get_current_time(&temp_tv);
      printf("Restarting time event, triggers in %d s %d us\n",
 	tv->tv_sec-temp_tv.tv_sec, tv->tv_usec-temp_tv.tv_usec); */
 
-     gtv.tv_sec = tv->tv_sec;
-     gtv.tv_usec = tv->tv_usec;
-     mainloop_time_source_restart(es->timesource,&gtv);
+     gtv = tv;
+     mainloop_time_source_restart(es->timesource,gtv);
 }
 
 static void pulse_api_time_free(pa_time_event *e)

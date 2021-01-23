@@ -38,7 +38,7 @@ static struct {
      gint samplesize;
      guint framesize;
      
-     GTimeVal start_time;
+     gint64 start_time;
      
      Ringbuf *output_buffer, *input_buffer;
      int input_overrun_count;
@@ -200,7 +200,7 @@ static gint portaudio_output_select_format(Dataformat *format, gboolean silent)
 static guint portaudio_output_play(gchar *buffer, guint bufsize)
 {
      guint32 i;
-     GTimeVal nowtime,r;
+     gint64 nowtime,r;
      PaTimestamp p;
      if (!bufsize) return ringbuf_available(portaudio_data.output_buffer);
      i = ringbuf_enqueue(portaudio_data.output_buffer,buffer,bufsize);
@@ -209,16 +209,16 @@ static guint portaudio_output_play(gchar *buffer, guint bufsize)
      if (Pa_StreamActive(portaudio_data.outstream)==0 && 
 	 ringbuf_available(portaudio_data.output_buffer)>4096) {
 	  Pa_StartStream(portaudio_data.outstream);
-	  g_get_current_time(&portaudio_data.start_time);
+	  portaudio_data.start_time = g_get_real_time();
 	  portaudio_data.delay_time_set = FALSE;
      }
      if (!portaudio_data.delay_time_set) {
 	  p = Pa_StreamTime( portaudio_data.outstream );
 	  if (p>0) {
-	       g_get_current_time(&nowtime);
-	       timeval_subtract(&r,&portaudio_data.start_time,&nowtime);
+	       nowtime = g_get_real_time();
+	       timeval_subtract(&r,portaudio_data.start_time,nowtime);
 	       portaudio_data.delay_time = 
-		    (gfloat)r.tv_sec + (gfloat)r.tv_usec/1000000.0 - 
+		    (gfloat)r/1000000.0 - 
 		    p / (gfloat)portaudio_data.samplerate;
 	       portaudio_data.delay_time_set = TRUE;
 	  }

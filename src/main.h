@@ -113,9 +113,9 @@ extern gboolean idle_work_flag;
 
 void byteswap(void *buffer, int element_size, int buffer_size);
 
-int timeval_subtract(GTimeVal *result, GTimeVal *x, GTimeVal *y);
-float timeval_divide(GTimeVal *x, GTimeVal *y);
-void timeval_divide_float(GTimeVal *result, GTimeVal *x, gfloat y);
+int timeval_subtract(gint64 *result, gint64 x, gint64 y);
+float timeval_divide(gint64 x, gint64 y);
+void timeval_divide_float(gint64 *result, gint64 x, gfloat y);
 
 gboolean free2(gpointer key, gpointer value, gpointer user_data);
 

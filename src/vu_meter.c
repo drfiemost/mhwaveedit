@@ -105,18 +105,18 @@ GtkWidget *vu_meter_new(gfloat value)
      v = gtk_type_new(vu_meter_get_type());
      v->value = value;
      v->goal = value;
-     g_get_current_time(&(v->valuetime));
+     v->valuetime = g_get_real_time();
      return GTK_WIDGET(v);
 }
 
-static void vu_meter_update_value_real(VuMeter *v, GTimeVal *tv)
+static void vu_meter_update_value_real(VuMeter *v, gint64 tv)
 {
-     GTimeVal diff;
+     gint64 diff;
      float f;
-     timeval_subtract(&diff,tv,&(v->valuetime));
-     f = ((float)diff.tv_usec) / 1000000.0 + ((float)diff.tv_sec);
+     timeval_subtract(&diff,tv,v->valuetime);
+     f = ((float)diff) / 1000000.0;
      v->value = v->value + (v->goal - v->value)*(1-exp(-f*10.0));
-     memcpy(&(v->valuetime),tv,sizeof(GTimeVal));
+     v->valuetime = tv;
 }
 
 static void undraw_value(VuMeter *v)
@@ -132,19 +132,19 @@ static void draw_value(VuMeter *v)
 
 void vu_meter_update(VuMeter *v)
 {
-     GTimeVal tv;
+     gint64 tv;
      undraw_value(v);
-     g_get_current_time(&tv);
-     vu_meter_update_value_real(v,&tv);
+     tv = g_get_real_time();
+     vu_meter_update_value_real(v,tv);
      draw_value(v);
 }
 
 void vu_meter_set_value(VuMeter *v, gfloat value)
 {
-     GTimeVal tv;
+     gint64 tv;
      undraw_value(v);
-     g_get_current_time(&tv);
-     vu_meter_update_value_real(v,&tv);
+     tv = g_get_real_time();
+     vu_meter_update_value_real(v,tv);
      v->goal = value;
      if (value > v->value) v->value = value;
      draw_value(v);
